@@ -36,7 +36,7 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Reset states when song changes
+  // First effect for handling song initialization and cleanup
   useEffect(() => {
     setIsPlaying(true);
     setProgress(0);
@@ -82,9 +82,16 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
         audioRef.current = null;
       }
     };
-  }, [song.id]); // Change dependency to song.id instead of song.url
+  }, [song.url]); // Only re-run when song URL changes
 
-  // Handle play/pause
+  // Second effect for handling volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+    }
+  }, [volume, isMuted]); // Only re-run when volume or mute state changes
+
+  // Third effect for handling play/pause state
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -93,14 +100,7 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying]);
-
-  // Handle volume change
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume / 100;
-    }
-  }, [volume, isMuted]);
+  }, [isPlaying]); // Only re-run when play state changes
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);

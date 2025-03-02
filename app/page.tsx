@@ -1,6 +1,6 @@
 import MusicGallery from "@/components/music-gallery";
 import type { Metadata } from "next";
-import { BackgroundAnimation } from "@/components/background-animation";
+// import { BackgroundAnimation } from "@/components/background-animation";
 
 export const metadata: Metadata = {
   title: "My Music Collection",

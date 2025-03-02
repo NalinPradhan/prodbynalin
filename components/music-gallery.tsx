@@ -60,7 +60,7 @@ export default function MusicGallery() {
     };
 
     fetchSongs();
-  }, []);
+  });
 
   const handleSongClick = (song: Song) => {
     setIsPlayerVisible(false);
