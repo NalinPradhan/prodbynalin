@@ -1,6 +1,5 @@
-import type { Config } from "tailwindcss";
+/** @type {import('tailwindcss').Config} */
 import tailwindcssAnimate from "tailwindcss-animate";
-// import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette";
 
 // This plugin adds each Tailwind color as a global CSS variable, e.g. var(--gray-200).
 function addVariablesForColors({
@@ -20,7 +19,7 @@ function addVariablesForColors({
   });
 }
 
-export default {
+module.exports = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -79,4 +78,4 @@ export default {
     },
   },
   plugins: [tailwindcssAnimate, addVariablesForColors],
-} satisfies Config;
+};
