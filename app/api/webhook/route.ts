@@ -1,5 +1,9 @@
+import { connectToDatabase } from "@/lib/mongodb";
+import { Song } from "@/models/Song";
+
 export async function POST(request: Request) {
   try {
+    await connectToDatabase();
     const payload = await request.json();
     const event = payload.notification_type;
     console.log("Received webhook event:", event);
@@ -14,7 +18,13 @@ export async function POST(request: Request) {
         format: payload.format,
       };
 
-      console.log("New song uploaded:", songInfo);
+      // Store in MongoDB
+      await Song.findOneAndUpdate({ id: songInfo.id }, songInfo, {
+        upsert: true,
+        new: true,
+      });
+
+      console.log("New song saved to database:", songInfo);
     }
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
