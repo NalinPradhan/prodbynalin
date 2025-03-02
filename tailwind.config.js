@@ -1,22 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 import tailwindcssAnimate from "tailwindcss-animate";
 
-// This plugin adds each Tailwind color as a global CSS variable, e.g. var(--gray-200).
-function addVariablesForColors({
-  addBase,
-}: // theme,
-{
-  addBase: (base: Record<string, { [key: string]: string }>) => void;
-  theme: (path: string) => Record<string, string>;
-}) {
-  // const allColors = flattenColorPalette(theme("colors"));
-  const newVars = Object.fromEntries(
-    Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
-  ) as Record<string, string>;
+function addVariablesForColors({ addBase, theme }) {
+  try {
+    import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette";
+    const colors = flattenColorPalette(theme("colors"));
 
-  addBase({
-    ":root": newVars,
-  });
+    const newVars = Object.fromEntries(
+      Object.entries(colors).map(([key, val]) => [`--${key}`, val])
+    );
+
+    addBase({
+      ":root": newVars,
+    });
+  } catch (error) {
+    console.warn("Error in addVariablesForColors:", error);
+  }
 }
 
 module.exports = {
@@ -63,11 +62,11 @@ module.exports = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
         },
       },
       borderRadius: {
