@@ -161,9 +161,7 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
               <h3 className="font-semibold text-sm line-clamp-1 text-white">
                 {song.title}
               </h3>
-              <p className="text-xs text-white/80 line-clamp-1">
-                {song.artist}
-              </p>
+              <p className="text-xs text-white/80 line-clamp-1">Nalin</p>
             </div>
           </div>
 
