@@ -29,9 +29,11 @@ export default function MusicGallery() {
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [coverAssignments] = useState(() => new Map<string, string>());
 
   useEffect(() => {
+    // Move coverAssignments inside the effect
+    const coverAssignments = new Map<string, string>();
+
     const fetchSongs = async () => {
       try {
         const response = await fetch("/api/music");
@@ -60,7 +62,7 @@ export default function MusicGallery() {
     };
 
     fetchSongs();
-  });
+  }, []); // Now the empty array is fine since coverAssignments is local to the effect
 
   const handleSongClick = (song: Song) => {
     setIsPlayerVisible(false);
@@ -85,34 +87,92 @@ export default function MusicGallery() {
   }
 
   return (
-    <div className="relative min-h-screen p-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {songs.map((song) => (
-          <motion.div
-            key={song.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-900 rounded-lg p-4 cursor-pointer hover:bg-zinc-800 transition"
-            onClick={() => handleSongClick(song)}
-          >
-            <div className="aspect-square bg-zinc-800 rounded-md mb-3 overflow-hidden">
-              <Image
-                src={song.cover || ALBUM_COVERS[0]}
-                alt={song.title}
-                width={300}
-                height={300}
-                className="object-cover w-full h-full"
-                priority
-              />
-            </div>
-            <h3 className="text-white font-medium truncate">{song.title}</h3>
-            <p className="text-zinc-400 text-sm">
-              {formatDuration(song.duration)}
-            </p>
-          </motion.div>
-        ))}
+    <div className="relative min-h-screen p-4 md:p-8">
+      {/* Mobile List View */}
+      <div className="block md:hidden">
+        <div className="space-y-3">
+          {songs.map((song) => (
+            <motion.div
+              key={song.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="group relative backdrop-blur-sm bg-transparent rounded-lg
+                hover:bg-white/5 transition-all duration-300 
+                border-y border-zinc-700/50
+                overflow-hidden"
+              onClick={() => handleSongClick(song)}
+            >
+              <div className="flex items-center p-3 gap-3">
+                <div
+                  className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 
+                  ring-1 ring-white/10"
+                >
+                  <Image
+                    src={song.cover || ALBUM_COVERS[0]}
+                    alt={song.title}
+                    width={48}
+                    height={48}
+                    className="object-cover w-full h-full"
+                    priority
+                  />
+                </div>
+                <div className="flex-grow min-w-0">
+                  <h3 className="text-white/90 font-medium truncate text-sm">
+                    {song.title}
+                  </h3>
+                  <p className="text-white/50 text-xs">
+                    {formatDuration(song.duration)}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
+      {/* Desktop Grid View */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {songs.map((song) => (
+            <motion.div
+              key={song.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative backdrop-blur-sm bg-transparent rounded-xl p-4 
+                hover:bg-white/5 transition-all duration-300 
+                border border-zinc-700/50
+                hover:border-zinc-600/50 hover:scale-[1.02]"
+              onClick={() => handleSongClick(song)}
+            >
+              <div
+                className="relative aspect-square rounded-lg mb-3 overflow-hidden 
+                  ring-1 ring-white/10 group-hover:ring-white/20 
+                  transition-all duration-300"
+              >
+                <Image
+                  src={song.cover || ALBUM_COVERS[0]}
+                  alt={song.title}
+                  width={300}
+                  height={300}
+                  className="object-cover w-full h-full transform transition-all duration-500 
+                    group-hover:scale-105"
+                  priority
+                />
+              </div>
+              <div className="relative">
+                <h3 className="text-white/90 font-medium truncate mb-1">
+                  {song.title}
+                </h3>
+                <p className="text-white/50 text-sm">
+                  {formatDuration(song.duration)}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Player remains unchanged */}
       <AnimatePresence>
         {isPlayerVisible && currentSong && (
           <MusicPlayer

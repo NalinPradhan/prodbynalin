@@ -145,60 +145,69 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-black bg-opacity-95 border-t border-white/20 shadow-2xl">
+      {/* Progress bar - moved to top and made thinner */}
+      <Slider
+        value={[progress]}
+        max={100}
+        step={0.1}
+        onValueChange={handleProgressChange}
+        className="absolute top-0 left-0 right-0 h-0.5"
+      />
+
       <div className="container mx-auto py-2 px-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-2 md:gap-4">
           {/* Left section - Song info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="relative pb-14 w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-              <Image
-                alt=""
-                src={"/covers/track.png"}
-                width={48}
-                height={48}
-              ></Image>
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink md:flex-1 min-w-0">
+            <div className="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
+              <Image alt="" src={"/covers/track.png"} width={48} height={48} />
             </div>
             <div className="min-w-0">
               <h3 className="font-semibold text-sm line-clamp-1 text-white">
                 {song.title}
               </h3>
-              <p className="text-xs text-white/80 line-clamp-1">Nalin</p>
+              {/* Artist name only shows on md and up */}
+              <p className="hidden md:block text-xs text-white/80 line-clamp-1">
+                Nalin
+              </p>
             </div>
           </div>
 
           {/* Center section - Controls */}
-          <div className="flex items-center gap-2 flex-1 justify-center">
+          <div className="flex items-center justify-center flex-1 md:flex-1">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 text-white"
+              className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 text-white hidden md:flex"
             >
               <SkipBack className="h-4 w-4" />
             </Button>
             <Button
               onClick={togglePlay}
-              className="h-10 w-10 rounded-full text-primary-foreground hover:bg-slate-600"
+              className="h-9 w-9 md:h-10 md:w-10 rounded-full text-primary-foreground hover:bg-slate-600 flex items-center justify-center"
             >
               {isPlaying ? (
-                <Pause className="h-5 w-5" />
+                <Pause className="h-4 w-4 md:h-5 md:w-5" />
               ) : (
-                <Play className="h-5 w-5 ml-0.5" />
+                <Play className="h-4 w-4 md:h-5 md:w-5" />
               )}
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 text-white"
+              className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 text-white hidden md:flex"
             >
               <SkipForward className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Right section - Volume and additional controls */}
-          <div className="flex items-center gap-2 flex-1 justify-end">
-            <span className="text-xs text-white/80">
+          <div className="flex items-center gap-1 md:gap-2 flex-shrink md:flex-1 justify-end">
+            {/* Time only shows on md and up */}
+            <span className="text-xs text-white/80 hidden md:inline">
               {formatTime(currentSeconds)} / {song.duration}
             </span>
-            <div className="flex items-center gap-1 w-24">
+            {/* Volume controls only show on md and up */}
+            <div className="hidden md:flex items-center gap-1 w-24">
               <Button
                 variant="ghost"
                 size="icon"
@@ -229,15 +238,6 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
             </Button>
           </div>
         </div>
-
-        {/* Progress bar */}
-        <Slider
-          value={[progress]}
-          max={100}
-          step={0.1}
-          onValueChange={handleProgressChange}
-          className="mt-1"
-        />
       </div>
     </div>
   );

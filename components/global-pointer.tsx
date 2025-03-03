@@ -7,8 +7,27 @@ export const GlobalPointer = () => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add resize listener
+    window.addEventListener("resize", checkMobile);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return; // Don't add mouse listeners on mobile
+
     const handleMouseMove = (e: MouseEvent) => {
       x.set(e.clientX);
       y.set(e.clientY);
@@ -28,13 +47,15 @@ export const GlobalPointer = () => {
       window.removeEventListener("mouseenter", handleMouseEnter);
       window.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [x, y]);
+  }, [x, y, isMobile]);
+
+  if (isMobile) return null; // Don't render on mobile
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="fixed top-0 left-0 h-3 w-3 rounded-full pointer-events-none z-50"
+          className="fixed top-0 left-0 h-3 w-3 rounded-full pointer-events-none z-50 hidden md:block" // Added hidden md:block
           style={{
             x,
             y,
