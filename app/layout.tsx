@@ -11,8 +11,8 @@ import { ShootingStars } from "@/components/ui/shooting-stars";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My Music Collection",
-  description: "A personal music hosting site for my original tracks",
+  title: "prodbynalin",
+  description: "A personal music hosting site for my beats",
 };
 
 // Example usage
