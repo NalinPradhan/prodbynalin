@@ -1,3 +1,4 @@
+import ContactForm from "@/components/contact-form";
 import MusicGallery from "@/components/music-gallery";
 import type { Metadata } from "next";
 // import { BackgroundAnimation } from "@/components/background-animation";
@@ -21,6 +22,7 @@ export default function Home() {
             </h1>
           </header>
           <MusicGallery />
+          <ContactForm />
         </div>
       </div>
     </main>

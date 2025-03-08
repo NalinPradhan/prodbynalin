@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   description: "A personal music hosting site for my original tracks",
 };
 
+// Example usage
+
 export default function RootLayout({
   children,
 }: {

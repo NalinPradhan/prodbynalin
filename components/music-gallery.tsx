@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MusicPlayer } from "@/components/music-player";
 import Image from "next/image";
+import { Timeline } from "@/components/ui/timeline";
+import { Heart } from "lucide-react"; // Add this import at the top
 
 // Define album covers as a constant
 const ALBUM_COVERS = [
@@ -29,6 +31,35 @@ export default function MusicGallery() {
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
+  const timelineData = [
+    {
+      title: "2024",
+      content: <p>Content for 2024</p>,
+    },
+    {
+      title: "2023",
+      content: <p>Content for 2023</p>,
+    },
+    {
+      title: "2020",
+      content: <p>Content for 2020</p>,
+    },
+    // ...more entries
+  ];
+
+  useEffect(() => {
+    // Load liked songs from localStorage on mount
+    const savedLikes = localStorage.getItem("likedSongs");
+    if (savedLikes) {
+      setLikedSongs(new Set(JSON.parse(savedLikes)));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save liked songs to localStorage whenever they change
+    localStorage.setItem("likedSongs", JSON.stringify([...likedSongs]));
+  }, [likedSongs]);
 
   useEffect(() => {
     // Move coverAssignments inside the effect
@@ -72,6 +103,50 @@ export default function MusicGallery() {
     }, 100);
   };
 
+  // Update the handleLike function to update state before the API call
+  const handleLike = async (e: React.MouseEvent, song: Song) => {
+    e.stopPropagation();
+
+    // Update state immediately
+    setLikedSongs((prev) => {
+      const newLiked = new Set(prev);
+      if (newLiked.has(song.id)) {
+        newLiked.delete(song.id);
+      } else {
+        newLiked.add(song.id);
+      }
+      return newLiked;
+    });
+
+    // Then make the API call
+    try {
+      const response = await fetch("/api/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          songId: song.id,
+          songTitle: song.title,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to send like");
+    } catch (error) {
+      // Revert the like if the API call fails
+      setLikedSongs((prev) => {
+        const newLiked = new Set(prev);
+        if (newLiked.has(song.id)) {
+          newLiked.delete(song.id);
+        } else {
+          newLiked.add(song.id);
+        }
+        return newLiked;
+      });
+      console.error("Error sending like:", error);
+    }
+  };
+
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -88,9 +163,11 @@ export default function MusicGallery() {
 
   return (
     <div className="relative min-h-screen p-4 md:p-8">
-      {/* Mobile List View */}
+      {/* Mobile View - Only Song List */}
       <div className="block md:hidden">
         <div className="space-y-3">
+          {" "}
+          {/* Removed flex layout, full width for songs */}
           {songs.map((song) => (
             <motion.div
               key={song.id}
@@ -124,51 +201,91 @@ export default function MusicGallery() {
                     {formatDuration(song.duration)}
                   </p>
                 </div>
+                {/* Add heart icon for mobile */}
+                <button
+                  onClick={(e) => handleLike(e, song)}
+                  className="p-2 rounded-full hover:bg-black/20 transition-colors duration-200"
+                >
+                  <Heart
+                    className={`w-5 h-5 ${
+                      likedSongs.has(song.id)
+                        ? "text-red-500" // Remove all transitions for instant change
+                        : "text-white/70 hover:text-red-500"
+                    }`}
+                    fill={likedSongs.has(song.id) ? "currentColor" : "none"}
+                  />
+                </button>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
 
-      {/* Desktop Grid View */}
+      {/* Desktop View with Timeline and Grid */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {songs.map((song) => (
-            <motion.div
-              key={song.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="group relative backdrop-blur-sm bg-transparent rounded-xl p-4 
-                hover:bg-white/5 transition-all duration-300 
-                border border-zinc-700/50
-                hover:border-zinc-600/50 hover:scale-[1.02]"
-              onClick={() => handleSongClick(song)}
-            >
-              <div
-                className="relative aspect-square rounded-lg mb-3 overflow-hidden 
-                  ring-1 ring-white/10 group-hover:ring-white/20 
-                  transition-all duration-300"
-              >
-                <Image
-                  src={song.cover || ALBUM_COVERS[0]}
-                  alt={song.title}
-                  width={300}
-                  height={300}
-                  className="object-cover w-full h-full transform transition-all duration-500 
-                    group-hover:scale-105"
-                  priority
-                />
-              </div>
-              <div className="relative">
-                <h3 className="text-white/90 font-medium truncate mb-1">
-                  {song.title}
-                </h3>
-                <p className="text-white/50 text-sm">
-                  {formatDuration(song.duration)}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+        <div className="flex gap-8">
+          {/* Timeline on the left */}
+          <div className="w-1/4 min-w-[200px] sticky top-0 h-screen pt-4">
+            <Timeline data={timelineData} />
+          </div>
+
+          {/* Song Grid on the right */}
+          <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {songs.map((song) => (
+                <motion.div
+                  key={song.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="group relative backdrop-blur-sm bg-transparent rounded-xl p-4 
+                    hover:bg-white/5 transition-all duration-300 
+                    border border-zinc-700/50
+                    hover:border-zinc-600/50 hover:scale-[1.02]"
+                  onClick={() => handleSongClick(song)}
+                >
+                  <div
+                    className="relative aspect-square rounded-lg mb-3 overflow-hidden 
+                      ring-1 ring-white/10 group-hover:ring-white/20 
+                      transition-all duration-300"
+                  >
+                    <Image
+                      src={song.cover || ALBUM_COVERS[0]}
+                      alt={song.title}
+                      width={300}
+                      height={300}
+                      className="object-cover w-full h-full transform transition-all duration-500 
+                        group-hover:scale-105"
+                      priority
+                    />
+                  </div>
+                  <div className="relative flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white/90 font-medium truncate mb-1">
+                        {song.title}
+                      </h3>
+                      <p className="text-white/50 text-sm">
+                        {formatDuration(song.duration)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => handleLike(e, song)}
+                      className="p-2 rounded-full bg-black/50 backdrop-blur-sm
+                        hover:bg-black/70 transition-colors duration-200"
+                    >
+                      <Heart
+                        className={`w-5 h-5 ${
+                          likedSongs.has(song.id)
+                            ? "text-red-500" // Remove all transitions for instant change
+                            : "text-white/70 hover:text-red-500"
+                        }`}
+                        fill={likedSongs.has(song.id) ? "currentColor" : "none"}
+                      />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
