@@ -82,7 +82,7 @@ export function MusicPlayer({ song, onClose }: MusicPlayerProps) {
         audioRef.current = null;
       }
     };
-  }, [song.url]); // Only re-run when song URL changes
+  }, [song.url, volume]); // Only re-run when song URL or volume changes
 
   // Second effect for handling volume changes
   useEffect(() => {
