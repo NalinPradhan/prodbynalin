@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 // import { BackgroundAnimation } from "@/components/background-animation";
 
 export const metadata: Metadata = {
-  title: "My Music Collection",
-  description: "A personal music hosting site for my original tracks",
+  title: "prodbynalin's music collection",
+  description: "A personal music hosting site for my beats",
 };
 
 export default function Home() {
