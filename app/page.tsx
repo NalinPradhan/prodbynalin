@@ -1,5 +1,6 @@
 import ContactForm from "@/components/contact-form";
 import MusicGallery from "@/components/music-gallery";
+import AnimatedCharacter from "@/components/animated-character";
 import type { Metadata } from "next";
 // import { BackgroundAnimation } from "@/components/background-animation";
 
@@ -25,6 +26,9 @@ export default function Home() {
           <ContactForm />
         </div>
       </div>
+      
+      {/* Add the animated character component */}
+      <AnimatedCharacter />
     </main>
   );
 }
