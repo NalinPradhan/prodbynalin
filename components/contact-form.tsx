@@ -39,7 +39,7 @@ export default function ContactForm() {
       className="bg-black space-y-6 max-w-2xl rounded-s-2xl mx-auto p-6"
     >
       <h2 className="text-teal-500 font-bold font-mono text-xl">
-        Send some anonymous appreciation <span className="text-3xl">🤗</span>
+        Send some appreciation <span className="text-2xl">🤗</span>
       </h2>
       <div>
         <label
